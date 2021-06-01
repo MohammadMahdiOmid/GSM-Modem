@@ -2,7 +2,6 @@ import json
 import requests
 from rich import print
 
-
 # api_keys = [
 #     'name',
 #     'price',
@@ -15,7 +14,6 @@ from rich import print
 #     'to_date',
 # ]
 
-
 def send_to_server(data):
     # data_json = json.dumps(data)
     # payload = {'json_payload': data_json, 'apikey': 'bs5aih@niu3@vyi4cr@iiuisj@fnrtsi@2323'}
@@ -27,10 +25,8 @@ def send_to_server(data):
 
     print(response)
 
-
 def process(data):
     result = {}
-
     splits = data.strip().splitlines()
 
     for l in splits:

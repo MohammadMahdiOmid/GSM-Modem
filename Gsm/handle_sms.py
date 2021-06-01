@@ -1,23 +1,16 @@
-import json
 import requests
-from datetime import datetime
-from gsmmodem.modem import GsmModem, Sms
-from gsmmodem.pdu import Concatenation
 from threading import Thread
 from api_retrieve import lock, shared_billing_id
 import time
 from rich import print
 import persian
 
-recieve_data = []
-recieve_references = []
-pre_references = None
-pre_parts = 0
-
-
+#for sending messages
 def send_sms(modem):
     while True:
-        #TODO remove locks
+
+        # TODO remove locks
+        # creating lock to prevent message interference
         lock.acquire()
 
         try:
@@ -27,7 +20,6 @@ def send_sms(modem):
             else:
                 print("Billing Id is null sleeping for 5 seconds")
                 time.sleep(5)
-
         except:
             print("unable to sending sms")
 
@@ -36,30 +28,23 @@ def send_sms(modem):
 
 # connecting to server
 def send_to_server(data):
-    # data_json = json.dumps(data)
-    # payload = {'json_payload': data_json, 'apikey': 'bs5aih@niu3@vyi4cr@iiuisj@fnrtsi@2323'}
+    if data:
 
-    if data :
-        # data['key'] = 'bs5aih@niu3@vyi4cr@iiuisj@fnrtsi@2323'
         try:
             response = requests.post('http://baran.kavoshgaran.org/api/Electricity/Ticket/Create', data=data)
-            # print("payload:", payload)
-
+            # To ckecking recieve data to server, we should print response and see response[200]
             print(response)
-            # print("response data is:",response.data)
+
         except:
             print('Excaption happned during POSTing data to the server')
 
-
+# To split data and processing the parts of the message we want to send to the server
 def process(data):
-    # data=data.strip()
     result = {}
     splits = data.strip().splitlines()
-    data=persian.convert_ar_characters(data)
+    data = persian.convert_ar_characters(data)
 
-    #TODO recheck sms format
-
-    # splits = data.strip().splitlines()
+    # TODO recheck sms format
     sms_lines = data.splitlines()
 
     for l in sms_lines:
@@ -67,94 +52,66 @@ def process(data):
         words = l.split(':')
 
         if l.__contains__('نام'):
-            # name
-            # print(words[1])
-
             result['name'] = words[1].strip()
 
         elif l.__contains__('مبلغ کل'):
-            # #price
-            # print(words[1])
             result['price'] = int(words[1].split()[0].strip())
 
         elif l.__contains__('پرونده'):
-            # # number_file
-            # # parvande has no colon
-            # print(words[0].split()[-1])
-
             result['number_file'] = int(words[0].split()[-1].strip())
 
         elif l.__contains__('شناسه پرداخت'):
-            # # id_payment
-            # print(words[1])
-
-            result['id_payment'] =int(words[1].strip())
+            result['id_payment'] = int(words[1].strip())
 
         elif l.__contains__('شناسه قبض '):
-            # # id_ticket
-            # print(words[1])
-
-            result['id_ticket'] =int(words[1].strip())
+            result['id_ticket'] = int(words[1].strip())
 
         elif l.__contains__('بدنه کنتور'):
-            # # body_contor
-            # print(words[1])
-
-            result['body_contor'] =int(words[1].strip())
+            result['body_contor'] = int(words[1].strip())
 
         elif l.__contains__('مصرف کل'):
-            # #   masraf_kol
-            # print(words[1])
-
-            result['masraf_kol'] =int(words[1].strip())
+            result['masraf_kol'] = int(words[1].strip())
 
         elif l.__contains__('مهلت پرداخت'):
-            # #   payment_deadline
-            # print(words[1])
-
             result['payment_deadline'] = words[1].strip()
 
         elif l.__contains__('از'):
-            # # from_date
-            # print(words[1])
-
             result['from_date'] = words[1].strip()
 
         elif l.__contains__('تا'):
-            # # to_date
-            # print(words[1])
-
             result['to_date'] = words[1].strip()
 
         elif l.__contains__('مشاهده و پرداخت قبض'):
             # result['payment_link'] = splits[-1].split('/')[-1]
-            result['link_payment'] =splits[-3].strip()
+            result['link_payment'] = splits[-3].strip()
 
-        # # TODO add this too
-        # # link_payment
+            # adding api_key
+            result['key'] = 'bs5aih@niu3@vyi4cr@iiuisj@fnrtsi@2323'
+
+        print("processing finish successefully")
+
+        # printing data before sending to server
+        print(result)
+
+        # TODO add this too
+        # link_payment
         # print(splits[-1])
-    # for l in sms_lines:
-    #     if l.startswith('htt'):
-    #         print(l)
-    #         result['payment_link'] = int(sms_lines[-1].split('/')[-1].strip())
-    #         break
-        result['key'] = 'bs5aih@niu3@vyi4cr@iiuisj@fnrtsi@2323'
-    print("processing finish successefully")
-
-    print(result)
-
+        # for l in sms_lines:
+        #  if l.startswith('htt'):
+        #      print(l)
+        #      result['payment_link'] = int(sms_lines[-1].split('/')[-1].strip())
+        #      break
     return result
 
 
+# To handle messages(some messages are short and some are long)
 def handleSms(sms):
-
     global pre_references
     global pre_parts
     global recieve_data
     global recieve_references
 
     if len(sms.udh) > 0:
-        # print(len(sms.udh))
         reference = sms.udh[0].reference
         if reference in recieve_references:
             index = recieve_references.index(reference)
@@ -168,17 +125,16 @@ def handleSms(sms):
             pre_parts = sms.udh[0].parts
             # already recieve one part
             pre_parts -= 1
-
+    # just printing details messages
     else:
         print(
             u'== SMS message received ==\nFrom: {0}\nTime: {1}\nMessage:\n{2}\n'.format(sms.number, sms.time, sms.text))
 
         data = process(sms.text)
 
-        # send_to_server(data)
+        # send_to_server(data) with another thread
         thread = Thread(target=send_to_server, args=(data,))
         thread.start()
-
 
     # printing long sms
     if pre_parts == 0:
@@ -191,9 +147,9 @@ def handleSms(sms):
 
             data = process(recieve_data[index])
 
+            # send_to_server(data)
             thread = Thread(target=send_to_server, args=(data,))
             thread.start()
-            # send_to_server(data)
 
         pre_references = None
         # freeing memory

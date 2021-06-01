@@ -5,7 +5,6 @@ lock = Lock()
 shared_billing_id = None
 previes_id = -1
 
-
 def read_api():
     global shared_billing_id
     global previes_id
