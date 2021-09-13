@@ -6,7 +6,7 @@ from handle_sms import handleSms
 
 LAST_TIME = time.time()
 #It is different between computers
-PORT = "COM5"
+PORT = "COM7"
 BAUDRATE = 115200
 # SIM card PIN (if any)
 PIN = None
@@ -31,11 +31,11 @@ def main():
         modem.close()
 
 if __name__ == '__main__':
-    obj=GsmModem()
+
     while True:
         try:
             main()
         except:
-            time.sleep(5)
+            time.sleep(2)
             print("Trying one more time")
             continue
