@@ -1,7 +1,8 @@
- import json
+ # import json
+import jalali
 import requests
 from rich import print
-
+# from jalali import Persian
 # api_keys = [
 #     'name',
 #     'price',
@@ -14,16 +15,16 @@ from rich import print
 #     'to_date',
 # ]
 
-def send_to_server(data):
-    # data_json = json.dumps(data)
-    # payload = {'json_payload': data_json, 'apikey': 'bs5aih@niu3@vyi4cr@iiuisj@fnrtsi@2323'}
-    data['apikey'] = 'bs5aih@niu3@vyi4cr@iiuisj@fnrtsi@2323'
-
-    # TODO exception handeling
-    response = requests.post('http://baran.kavoshgaran.org/api/Electricity/Ticket/Create', data=data)
-    # print("payload:", payload)
-
-    print(response)
+# def send_to_server(data):
+#     # data_json = json.dumps(data)
+#     # payload = {'json_payload': data_json, 'apikey': 'bs5aih@niu3@vyi4cr@iiuisj@fnrtsi@2323'}
+#     data['apikey'] = 'bs5aih@niu3@vyi4cr@iiuisj@fnrtsi@2323'
+#
+#     # TODO exception handeling
+#     response = requests.post('http://baran.kavoshgaran.org/api/Electricity/Ticket/Create', data=data)
+#     # print("payload:", payload)
+#
+#     print(response)
 
 def process(data):
     result = {}
@@ -87,7 +88,7 @@ def process(data):
 
             result['from_date'] = words[1].strip()
 
-        elif l.__contains__('تا'):
+        elif l.startswith('تا'):
             # # to_date
             # print(words[1])
 
@@ -102,6 +103,9 @@ def process(data):
 
 
     return result
+
+
+
 
 
 if __name__ == '__main__':
@@ -135,8 +139,9 @@ if __name__ == '__main__':
     #         'payment_link': 'https://saapa.ir/b/125673736'
     #         }
 
-    data_to_post = process(data)
+    # data_to_post = process(data)
+    #
+    # print(data_to_post)
 
-    print(data_to_post)
+    # send_to_server(data_to_post)
 
-    send_to_server(data_to_post)
