@@ -2,7 +2,7 @@ from __future__ import print_function
 import logging
 import time
 from gsmmodem.modem import GsmModem
-from handle_sms import handleSms
+from Gsm.Test.handle_sms import handleSms
 
 LAST_TIME = time.time()
 #It is different between computers
