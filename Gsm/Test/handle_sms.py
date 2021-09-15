@@ -1,6 +1,6 @@
 import requests
 from threading import Thread
-from api_retrieve import lock, shared_billing_id
+from Gsm.Test.api_retrieve import lock, shared_billing_id
 import time
 from rich import print
 import persian
