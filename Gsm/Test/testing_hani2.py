@@ -1,10 +1,9 @@
 from __future__ import print_function
 import logging
 import time
-from testing_hani import handleSms , process
+from Gsm.Test.testing_hani import handleSms , process
 from gsmmodem.modem import GsmModem
 
-from threading import Thread
 # from handle_sms import send_sms
 # from api_retrieve import read_api
 
