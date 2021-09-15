@@ -1,41 +1,55 @@
+'''
+Author MohammadMahdiOmid
+Email:mohammadmehdiomid@gmail.com
+'''
+
+# imports
 import time
 import requests
 from threading import Thread
 from rich import print
 import persian
-from change_date import Persian , Gregorian
+from change_date import Persian, Gregorian
 
+# for get sms and combine
 recieve_data = []
 recieve_references = []
 pre_references = None
 pre_parts = 0
+
 
 # connecting to server
 def send_to_server(data):
     # data_json = json.dumps(data)
     # payload = {'json_payload': data_json, 'apikey': 'bs5aih@niu3@vyi4cr@iiuisj@fnrtsi@2323'}
 
-    if data :
+    # get data
+    if data:
+        # api key
         data['key'] = 'bs5aih@niu3@vyi4cr@iiuisj@fnrtsi@2323'
         try:
+            # send post to server
             response = requests.post('http://baran.kavoshgaran.org/api/Electricity/Ticket/Create', data=data)
             # print("payload:", payload)
 
             print(response)
-            print("response data is:",response.data)
+            print("response data is:", response.data)
         except:
             print('Excaption happned during POSTing data to the server')
 
+
 def process(data):
-    # data=data.strip()
+    # prep for sending api
     result = {}
-    # splits = data.strip().splitlines()
-    data=persian.convert_ar_characters(data)
+    # convert to good font(persian)
+    data = persian.convert_ar_characters(data)
 
-    #TODO recheck sms format
+    # TODO recheck sms format
 
+    # split every line
     sms_lines = data.splitlines()
 
+    # to seprating every field for api
     for l in sms_lines:
 
         words = l.split(':')
@@ -58,15 +72,15 @@ def process(data):
 
         elif l.startswith('شناسه قبض'):
 
-            result['id_ticket'] =int(words[1].strip())
+            result['id_ticket'] = int(words[1].strip())
 
         elif l.startswith('بدنه کنتور'):
 
-            result['body_contor'] =int(words[1].strip())
+            result['body_contor'] = int(words[1].strip())
 
         elif l.startswith('مصرف کل'):
 
-            result['masraf_kol'] =int(words[1].strip())
+            result['masraf_kol'] = int(words[1].strip())
 
         elif l.startswith('مهلت پرداخت'):
             change_date = Persian(words[1].strip()).gregorian_string()
@@ -74,7 +88,7 @@ def process(data):
             result['payment_deadline'] = change_date
 
         elif l.startswith('از'):
-            change_date =Persian(words[1].strip()).gregorian_string()
+            change_date = Persian(words[1].strip()).gregorian_string()
 
             result['from_date'] = change_date
 
@@ -85,13 +99,14 @@ def process(data):
 
         elif l.startswith('https://saapa.ir/b/'):
 
-              result['payment_link'] = words[0].strip() + words[1].strip()
+            result['payment_link'] = words[0].strip() + words[1].strip()
 
     print("processing finish successefully")
     print(result)
     return result
 
 
+# get sms
 def handleSms(sms):
     time.sleep(60)
     global pre_references
@@ -116,9 +131,10 @@ def handleSms(sms):
             pre_parts -= 1
 
     else:
-        print( u'== SMS message received ==\nFrom: {0}\nTime: {1}\nMessage:\n{2}\n'.format(sms.number, sms.time, sms.text))
+        print(
+            u'== SMS message received ==\nFrom: {0}\nTime: {1}\nMessage:\n{2}\n'.format(sms.number, sms.time, sms.text))
 
-
+        # prep sms to sending to server
         data = process(sms.text)
 
         # send_to_server(data)
@@ -135,9 +151,9 @@ def handleSms(sms):
                                                                                               recieve_data[index]))
             data = process(recieve_data[index])
 
+            # send_to_server(data)
             thread = Thread(target=send_to_server, args=(data,))
             thread.start()
-            # send_to_server(data)
 
         pre_references = None
         # freeing memory
