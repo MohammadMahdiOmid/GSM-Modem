@@ -1,9 +1,7 @@
 import re
 import datetime
 
-
 class Gregorian:
-
     def __init__(self, *date):
         # Parse date
         if len(date) == 1:
