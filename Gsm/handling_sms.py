@@ -35,7 +35,7 @@ def send_to_server(data):
             print(response)
             print("response data is:", response.data)
         except:
-            print('Excaption happned during POSTing data to the server')
+            print('Excaption happened during Posting data to the server')
 
 
 def process(data):
