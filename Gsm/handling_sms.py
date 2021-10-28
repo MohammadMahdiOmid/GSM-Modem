@@ -21,15 +21,15 @@ pre_parts = 0
 # connecting to server
 def send_to_server(data):
     # data_json = json.dumps(data)
-    # payload = {'json_payload': data_json, 'apikey': 'bs5aih@niu3@vyi4cr@iiuisj@fnrtsi@2323'}
+    # payload = {'json_payload': data_json, 'apikey': 'YOUR API KEY'}
 
     # get data
     if data:
         # api key
-        data['key'] = 'bs5aih@niu3@vyi4cr@iiuisj@fnrtsi@2323'
+        data['key'] = 'YOUR API KEY'
         try:
             # send post to server
-            response = requests.post('http://baran.kavoshgaran.org/api/Electricity/Ticket/Create', data=data)
+            response = requests.post('YOUR POST ADDRESS', data=data)
             # print("payload:", payload)
 
             print(response)
